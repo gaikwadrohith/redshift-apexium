@@ -1,7 +1,7 @@
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./Pages/Home";
 import Legends from "./Pages/Legends";
 import Seasons from "./Pages/Seasons";
 import ScrollToTop from "./components/layout/ScrollToTop";
