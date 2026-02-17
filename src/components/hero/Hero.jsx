@@ -45,7 +45,7 @@ const Hero = () => {
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <Motion.button
-              onClick={() => navigate("/legends")}
+              onClick={() => navigate("/signup")}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 bg-red-600 hover:bg-red-700 transition duration-300 rounded-full font-semibold shadow-lg shadow-red-600/20"

@@ -6,6 +6,21 @@ html {
   scroll-behavior: smooth;
 }
 
+html, body {
+  background-color: #000000;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+html, body, button, a, input {
+  cursor: none !important;
+}
+
+.custom-cursor-glow {
+  filter: drop-shadow(0 0 5px rgba(212, 17, 17, 0.8));
+}
+
 .writing-mode-vertical-rl {
   writing-mode: vertical-rl;
 }
@@ -70,4 +85,8 @@ html {
 .navLink.active::after {
   width: 100%;
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
+}
+
+@media (pointer: coarse) {
+  html, body, button, a { cursor: auto !important; }
 }
