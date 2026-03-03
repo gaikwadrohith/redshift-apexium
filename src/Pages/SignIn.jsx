@@ -2,23 +2,29 @@ import { motion as Motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, MessageSquare } from "lucide-react";
 import { FaDiscord } from "react-icons/fa";
 import { FiTwitch } from "react-icons/fi";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useCookies } from "react-cookie";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const [cookies, setCookie] = useCookies(["username", "registeredUser"]);
+
+  useEffect(() => {
+    if (cookies.username) {
+      navigate("/welcome");
+    }
+  }, [cookies, navigate]);
+
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#221010] text-white overflow-hidden relative">
       <div className="relative hidden lg:flex lg:w-3/5 min-h-screen border-r border-red-600/20 overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105" style={{ backgroundImage: "url('/auth/samuraii.jpg')" }} />
-
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-[#221010]" />
-
         <div className="absolute top-10 left-6 opacity-10 text-[140px] font-black text-red-600 writing-mode-vertical-rl">武士道</div>
 
         <div className="absolute bottom-16 left-16 z-10 max-w-lg">
@@ -39,19 +45,16 @@ const SignIn = () => {
 
       <div className="flex-1 flex items-center justify-center px-8 lg:px-20 relative overflow-y-auto py-16 bg-[#221010]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(220,38,38,0.15),transparent_60%)]" />
-
         <div className="hidden lg:block absolute left-0 top-0 h-full w-[1px] bg-red-600/20" />
-
         <div className="absolute bottom-10 right-10 opacity-5 text-[160px] font-black writing-mode-vertical-rl">名誉</div>
 
         <Motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="w-full max-w-md space-y-10 z-10">
           <div className="space-y-3">
             <div className="h-[3px] w-10 bg-red-600 mb-4" />
-
             <h2 className="text-3xl font-black uppercase tracking-tight">Command Center Access</h2>
-
             <p className="text-white/40 text-sm tracking-[0.2em] uppercase">Rejoin the Fray • Operator Protocol</p>
           </div>
+
           <Formik
             initialValues={{
               identifier: "",
@@ -61,8 +64,35 @@ const SignIn = () => {
               identifier: Yup.string().required("Email or Username is required"),
               password: Yup.string().min(6, "Minimum 6 characters").required("Password is required"),
             })}
-            onSubmit={() => {
-              navigate("/welcome");
+            onSubmit={(values) => {
+              let storedUser = cookies.registeredUser;
+
+              if (!storedUser) {
+                alert("No registered user found. Please sign up first.");
+                return;
+              }
+
+              if (typeof storedUser === "string") {
+                try {
+                  storedUser = JSON.parse(storedUser);
+                } catch {
+                  alert("Corrupted user data. Please register again.");
+                  return;
+                }
+              }
+
+              const isValidUser = (values.identifier === storedUser.username || values.identifier === storedUser.email) && values.password === storedUser.password;
+
+              if (isValidUser) {
+                setCookie("username", storedUser.username, {
+                  path: "/",
+                  maxAge: 60 * 60 * 24,
+                });
+
+                navigate("/welcome");
+              } else {
+                alert("Invalid username or password");
+              }
             }}
           >
             {() => (
@@ -115,6 +145,7 @@ const SignIn = () => {
               </Form>
             )}
           </Formik>
+
           <div className="pt-8 border-t border-white/10 space-y-6">
             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-white/30">External Auth</div>
 
@@ -140,12 +171,6 @@ const SignIn = () => {
             </Link>
           </div>
         </Motion.div>
-
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-8 text-[9px] uppercase tracking-[0.25em] text-white/20">
-          <button className="hover:text-white transition">Privacy Protocol</button>
-          <button className="hover:text-white transition">Combat Terms</button>
-          <button className="hover:text-white transition">System Status</button>
-        </div>
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [cookies, , removeCookie] = useCookies(["username", "email"]);
 
   const navItems = [
     { name: "Legends", path: "/legends" },
@@ -14,6 +15,12 @@ const Header = () => {
     { name: "Battle Pass", path: "/battlepass" },
     { name: "News", path: "/news" },
   ];
+
+  const handleLogout = () => {
+    removeCookie("username", { path: "/" });
+    removeCookie("email", { path: "/" });
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
@@ -36,9 +43,19 @@ const Header = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-4">
-          <button onClick={() => navigate("/SignIn")} className="px-4 py-2 border border-white/20 text-xs uppercase tracking-widest text-white hover:border-red-600 transition">
-            Sign In
-          </button>
+          {cookies.username ? (
+            <>
+              <span className="text-xs uppercase tracking-widest text-white/70">Welcome, {cookies.username}</span>
+
+              <button onClick={handleLogout} className="px-4 py-2 border border-red-600 text-xs uppercase tracking-widest text-white hover:bg-red-600 transition">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <button onClick={() => navigate("/signin")} className="px-4 py-2 border border-white/20 text-xs uppercase tracking-widest text-white hover:border-red-600 transition">
+              Sign In
+            </button>
+          )}
 
           <button className="px-5 py-2 bg-red-600 text-xs uppercase tracking-widest text-white hover:bg-red-700 transition">Play Free</button>
         </div>
@@ -70,7 +87,32 @@ const Header = () => {
               ))}
 
               <div className="flex flex-col gap-4 pt-4 border-t border-white/10">
-                <button className="px-4 py-2 border border-white/20 text-xs uppercase tracking-widest text-white hover:border-red-600 transition">Sign In</button>
+                {cookies.username ? (
+                  <>
+                    <span className="text-xs uppercase tracking-widest text-white/70 text-center">Welcome, {cookies.username}</span>
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setOpen(false);
+                      }}
+                      className="px-4 py-2 border border-red-600 text-xs uppercase tracking-widest text-white hover:bg-red-600 transition"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      navigate("/signin");
+                      setOpen(false);
+                    }}
+                    className="px-4 py-2 border border-white/20 text-xs uppercase tracking-widest text-white hover:border-red-600 transition"
+                  >
+                    Sign In
+                  </button>
+                )}
+
                 <button className="px-5 py-2 bg-red-600 text-xs uppercase tracking-widest text-white hover:bg-red-700 transition">Play Free</button>
               </div>
             </div>

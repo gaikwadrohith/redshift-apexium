@@ -1,14 +1,23 @@
 import { motion as Motion } from "framer-motion";
 import { Eye, EyeOff, Sword } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as yup from "yup";
+import { useCookies } from "react-cookie";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  // 👇 IMPORTANT — use registeredUser
+  const [cookies, setCookie] = useCookies(["username", "registeredUser"]);
+
+  useEffect(() => {
+    if (cookies.username) {
+      navigate("/welcome");
+    }
+  }, [cookies, navigate]);
 
   const validationSchema = yup.object({
     email: yup.string().email("Invalid email format").required("Email is required"),
@@ -25,8 +34,14 @@ const Signup = () => {
       }}
       validationSchema={validationSchema}
       onSubmit={(values) => {
-        console.log(values);
-        navigate("/welcome");
+        // 👇 Store full user object
+        setCookie("registeredUser", JSON.stringify(values), {
+          path: "/",
+          maxAge: 60 * 60 * 24,
+        });
+
+        // 👇 After signup → go to signin
+        navigate("/signin");
       }}
     >
       {() => (

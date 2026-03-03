@@ -1,6 +1,8 @@
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+
 import Home from "./Pages/Home";
 import Legends from "./Pages/Legends";
 import Seasons from "./Pages/Seasons";
@@ -14,14 +16,15 @@ import CustomCursor from "./components/layout/CustomCursor";
 
 function App() {
   const location = useLocation();
+  const [cookies] = useCookies(["username"]);
 
   const path = location.pathname.toLowerCase();
 
   const isHome = path === "/";
   const isSignUp = path === "/signup";
   const isSignIn = path === "/signin";
-
   const isWelcome = path === "/welcome";
+
   const shouldShowHeaderFooter = !isHome && !isSignUp && !isSignIn && !isWelcome;
 
   return (
@@ -40,7 +43,7 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/welcome" element={<WelcomeClan />} />
+          <Route path="/welcome" element={cookies.username ? <WelcomeClan /> : <Navigate to="/signin" />} />
         </Routes>
       </main>
 
